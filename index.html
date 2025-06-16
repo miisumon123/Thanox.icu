@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Apple of Fortune</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #111;
+      color: #fff;
+      text-align: center;
+      padding-top: 50px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(6, 60px);
+      gap: 15px;
+      justify-content: center;
+    }
+    .apple {
+      width: 60px;
+      height: 60px;
+      background: red;
+      border-radius: 50%;
+      cursor: pointer;
+      line-height: 60px;
+      font-weight: bold;
+    }
+    .win {
+      background: green !important;
+    }
+    .lose {
+      background: gray !important;
+    }
+  </style>
+</head>
+<body>
+  <h1>🍎 Apple of Fortune</h1>
+  <p>Tap the apples and test your luck!</p>
+  <div class="grid" id="grid"></div>
+  <p id="result" style="margin-top: 20px; font-size: 20px;"></p>
+
+  <script>
+    const grid = document.getElementById('grid');
+    const result = document.getElementById('result');
+    let winningApple = Math.floor(Math.random() * 18);
+
+    for (let i = 0; i < 18; i++) {
+      const apple = document.createElement('div');
+      apple.classList.add('apple');
+      apple.dataset.index = i;
+      apple.innerText = "🍏";
+      apple.onclick = function () {
+        if (parseInt(this.dataset.index) === winningApple) {
+          this.classList.add('win');
+          result.innerText = "🎉 You found the lucky apple!";
+        } else {
+          this.classList.add('lose');
+          result.innerText = "❌ Try again!";
+        }
+        this.onclick = null;
+      };
+      grid.appendChild(apple);
+    }
+  </script>
+</body>
+</html>
