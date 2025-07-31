@@ -3,9 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <title>BDG Game Predictor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
   <style>
-    body {
-      margin: 0;
+    /* Reset */
+    * {
+      box-sizing: border-box;
+    }
+
+    body, html {
+      margin: 0; padding: 0; height: 100%;
       font-family: Arial, sans-serif;
       background-color: #000;
       color: #fff;
@@ -13,181 +19,171 @@
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
     }
-    .center {
+
+    #start-screen, #predictor-section {
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 15px;
       text-align: center;
-      margin-top: 20%;
+      position: relative;
+      top: 20vh;
     }
-    .hidden {
-      display: none;
+
+    #start-screen h1 {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 40px;
+      color: #00c1b3;
     }
+
+    #start-screen button {
+      padding: 15px 35px;
+      font-size: 22px;
+      font-weight: 700;
+      color: #000;
+      background-color: #00c1b3;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    #start-screen button:hover {
+      background-color: #018b83;
+    }
+
     #predictor-section {
       display: none;
-      position: relative;
-      padding: 20px;
-      max-width: 400px;
-      margin: auto;
+      background: rgba(0,0,0,0.65);
       border-radius: 15px;
-      background: rgba(0,0,0,0.6); /* dark transparent bg behind all */
-      box-shadow: 0 0 15px rgba(255,255,255,0.3);
+      padding: 25px 20px;
+      top: 10vh;
+      box-shadow: 0 0 15px rgba(0,193,179,0.6);
     }
-    #period, #number, #countdown, #clock, #message {
-      font-size: 30px;
+
+    #predictor-section > div {
       margin: 15px 0;
-      font-weight: 900;
-      text-shadow:
-        0 0 5px #00fff7,
-        0 0 10px #00fff7,
-        0 0 20px #00fff7,
-        0 0 30px #00fff7;
-      padding: 10px 15px;
-      border-radius: 12px;
+      font-weight: 600;
+      border-radius: 10px;
+      padding: 8px 12px;
       background: rgba(0,0,0,0.5);
+      font-size: 24px;
+      user-select: none;
     }
+
+    #clock {
+      font-weight: 700;
+      font-size: 26px;
+      color: #00c1b3;
+      background: rgba(0,0,0,0.75);
+    }
+
     #boom {
-      font-size: 48px;
-      color: #ffd700;
       display: none;
+      margin-top: 25px;
+      font-size: 40px;
       font-weight: 900;
-      text-shadow:
-        0 0 10px #ffd700,
-        0 0 20px #ffd700,
-        0 0 30px #ffae00,
-        0 0 40px #ffae00;
-      margin-top: 30px;
-      border-radius: 15px;
+      color: #ffd700;
       background: rgba(0,0,0,0.7);
-      padding: 20px;
-      animation: boomAnim 1s ease-in-out;
+      padding: 20px 0;
+      border-radius: 15px;
+      user-select: none;
     }
-    @keyframes boomAnim {
-      0% { transform: scale(0.5); opacity: 0; }
-      50% { transform: scale(1.3); opacity: 1; }
-      100% { transform: scale(1); opacity: 0; }
-    }
+
     .marquee {
       position: fixed;
-      bottom: 10px;
+      bottom: 0;
       width: 100%;
-      color: #00fff7;
-      font-size: 20px;
+      background: rgba(0,0,0,0.7);
+      color: #00c1b3;
+      font-weight: 600;
+      font-size: 18px;
       white-space: nowrap;
       overflow: hidden;
-      font-weight: 700;
-      text-shadow: 0 0 6px #00fff7;
-      background: rgba(0,0,0,0.7);
       padding: 10px 0;
-      letter-spacing: 2px;
+      user-select: none;
+      letter-spacing: 1.2px;
     }
     .marquee p {
       display: inline-block;
       animation: scrollText 12s linear infinite;
+      padding-left: 100%;
     }
     @keyframes scrollText {
-      from { transform: translateX(100%); }
-      to { transform: translateX(-100%); }
-    }
-    #start-screen h1 {
-      font-size: 60px;
-      font-weight: 900;
-      color: #00fff7;
-      text-shadow:
-        0 0 10px #00fff7,
-        0 0 20px #00fff7,
-        0 0 30px #00fff7;
-      margin-top: 150px;
-    }
-    #start-screen button {
-      margin-top: 40px;
-      padding: 20px 50px;
-      font-size: 24px;
-      background-color: #00fff7;
-      border: none;
-      border-radius: 15px;
-      color: black;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow:
-        0 0 10px #00fff7,
-        0 0 20px #00fff7,
-        0 0 30px #00fff7;
-      transition: background-color 0.3s ease;
-    }
-    #start-screen button:hover {
-      background-color: #00c2b8;
-      box-shadow:
-        0 0 20px #00c2b8,
-        0 0 40px #00c2b8,
-        0 0 60px #00c2b8;
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
     }
   </style>
 </head>
 <body>
-  <div id="start-screen" class="center">
-    <h1 id="intro">ThanosXnewb</h1>
+
+  <div id="start-screen">
+    <h1>ThanosXnewb</h1>
     <button onclick="startApp()">WIN GO 1 MIN</button>
   </div>
 
   <div id="predictor-section">
-    <div id="clock"></div>
-    <div id="period"></div>
-    <div id="countdown"></div>
-    <div id="number"></div>
-    <div id="message"></div>
+    <div id="clock">🕒 Current Time: --:--:--</div>
+    <div id="period">📟 Period: Loading...</div>
+    <div id="countdown">⏳ Next Prediction In: --s</div>
+    <div id="number">🎯 Predicted Number: --</div>
+    <div id="message">💸 BET FULL MONEY 💸</div>
     <div id="boom">💥 WIN BOOM 💥</div>
   </div>
 
   <div class="marquee"><p>Play Safe 1 Day 3 time</p></div>
 
   <script>
-    let started = false;
     const bgUrl = "https://raw.githubusercontent.com/miisumon123/Thanox.icu/main/Bg.jpg";
 
     function startApp() {
-      if (started) return;
-      started = true;
-
       document.body.style.backgroundImage = `url(${bgUrl})`;
       document.getElementById("start-screen").style.display = "none";
-      document.getElementById("predictor-section").style.display = "block";
+      const predictor = document.getElementById("predictor-section");
+      predictor.style.display = "block";
 
-      updateTime();
-      setInterval(updateTime, 1000);
+      updateAll();
+      setInterval(updateAll, 1000);
     }
 
-    function updateTime() {
+    function updateAll() {
       const now = new Date();
-      const hours = now.getHours().toString().padStart(2, '0');
-      const minutes = now.getMinutes().toString().padStart(2, '0');
-      const seconds = now.getSeconds().toString().padStart(2, '0');
 
-      document.getElementById("clock").innerText = `🕒 Current Time: ${hours}:${minutes}:${seconds}`;
+      const h = now.getHours().toString().padStart(2, '0');
+      const m = now.getMinutes().toString().padStart(2, '0');
+      const s = now.getSeconds().toString().padStart(2, '0');
 
+      document.getElementById("clock").textContent = `🕒 Current Time: ${h}:${m}:${s}`;
+
+      // Calculate period number
       const basePeriod = 100050282;
       const startDate = new Date("2025-07-31T10:00:00");
-      const diffMinutes = Math.floor((now - startDate) / 60000);
-      const period = `2025073110005${basePeriod + diffMinutes}`;
-      document.getElementById("period").innerText = `📟 Period: ${period}`;
+      const diffMins = Math.floor((now - startDate) / 60000);
+      const period = `2025073110005${basePeriod + diffMins}`;
+      document.getElementById("period").textContent = `📟 Period: ${period}`;
 
-      // Predict number stable for each minute:
+      // Predict number (stable per minute)
       const predictionNum = (now.getHours() + now.getMinutes()) % 10;
-      document.getElementById("number").innerText = `🎯 Predicted Number: ${predictionNum}`;
+      document.getElementById("number").textContent = `🎯 Predicted Number: ${predictionNum}`;
 
-      document.getElementById("message").innerText = `💸 BET FULL MONEY 💸`;
+      document.getElementById("message").textContent = `💸 BET FULL MONEY 💸`;
 
-      // Countdown:
       const countdown = 60 - now.getSeconds();
-      document.getElementById("countdown").innerText = `⏳ Next Prediction In: ${countdown}s`;
+      document.getElementById("countdown").textContent = `⏳ Next Prediction In: ${countdown}s`;
 
-      // Show Win Boom for 1 second exactly at second 0
+      // Show WIN BOOM briefly at the turn of the minute
       const boom = document.getElementById("boom");
-      if (seconds === "00") {
+      if (s === "00") {
         boom.style.display = "block";
         setTimeout(() => {
           boom.style.display = "none";
-        }, 1000);
+        }, 1500);
       }
     }
   </script>
+
 </body>
 </html>
