@@ -1,187 +1,119 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>BDG Game Predictor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ThanosXNewb Predictor</title>
+
   <style>
     body {
+      background: url('https://raw.githubusercontent.com/miisumon123/Thanox.icu/main/Bg.jpg') no-repeat center center fixed;
+      background-size: cover;
       margin: 0;
-      font-family: 'Arial Black', sans-serif;
-      background: #111;
+      font-family: Arial, sans-serif;
       color: white;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 100vh;
-      overflow: hidden;
-      text-align: center;
     }
 
-    /* Splash Screen */
-    #splash {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #000;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      flex-direction: column;
-      animation: fadeOut 2s ease 3s forwards;
-    }
-    #splash h1 {
-      font-size: 48px;
-      color: gold;
-      animation: glow 1.5s ease-in-out infinite alternate;
-      margin: 0;
-    }
-    @keyframes glow {
-      from {
-        text-shadow: 0 0 10px gold, 0 0 20px gold, 0 0 30px orange;
-        color: gold;
-      }
-      to {
-        text-shadow: 0 0 30px gold, 0 0 40px orange, 0 0 50px orange;
-        color: orange;
-      }
-    }
-    @keyframes fadeOut {
-      to { opacity: 0; visibility: hidden; }
+    #startButton, #mainContent {
+      transition: all 0.5s ease;
     }
 
-    /* Main content hidden initially */
-    #main {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
+    #animationText {
+      font-size: 32px;
+      font-weight: bold;
+      margin-bottom: 30px;
+      animation: fadeIn 2s ease-in-out;
     }
-    button {
-      padding: 14px 36px;
-      background: #00ff99;
-      color: black;
-      font-size: 22px;
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.5); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    #startButton {
+      background-color: rgba(0,0,0,0.7);
+      color: white;
+      padding: 12px 24px;
+      font-size: 20px;
       border: none;
-      border-radius: 12px;
-      margin-top: 20px;
+      border-radius: 10px;
       cursor: pointer;
     }
-    .realtime {
-      font-size: 28px;
-      margin: 20px 0 10px 0;
-      color: #fff;
+
+    #mainContent {
+      display: none;
+      text-align: center;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 15px;
+    }
+
+    #periodDisplay {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    #countdown {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    #betText {
+      font-size: 22px;
       font-weight: bold;
-    }
-    .countdown {
-      font-size: 26px;
-      color: #0f0;
-      margin: 8px 0;
-    }
-    .info {
-      font-size: 20px;
-      margin: 8px 0;
-    }
-    .number {
-      font-size: 80px;
-      color: #ff0;
-      margin-top: 10px;
+      margin-top: 15px;
     }
   </style>
 </head>
+
 <body>
+  <div id="animationText">THANOSXNEWB</div>
+  <button id="startButton">WIN GO 1 MIN</button>
 
-  <div id="splash">
-    <h1>ThanosXnewb</h1>
+  <div id="mainContent">
+    <div id="periodDisplay">Period: Loading...</div>
+    <div id="countdown">Countdown: 00s</div>
+    <div id="betText">BET FULL MONEY 💸</div>
   </div>
 
-  <div id="main">
-    <button id="startBtn">WIN GO 1 MIN</button>
+  <script>
+    const startButton = document.getElementById("startButton");
+    const mainContent = document.getElementById("mainContent");
+    const animationText = document.getElementById("animationText");
+    const periodDisplay = document.getElementById("periodDisplay");
+    const countdown = document.getElementById("countdown");
 
-    <div class="realtime" id="realTimeDisplay">--:--:--</div>
-    <div class="countdown" id="countdownText">Next update in: --s</div>
-    <div class="info" id="periodDisplay">Period: --</div>
-    <div class="number" id="predictedNumber">--</div>
-    <div class="info" id="betText"></div>
-  </div>
+    startButton.onclick = () => {
+      startButton.style.display = "none";
+      animationText.style.display = "none";
+      mainContent.style.display = "block";
+      updateTime();
+      setInterval(updateTime, 1000);
+    };
 
-<script>
-  const splash = document.getElementById('splash');
-  const main = document.getElementById('main');
-  const startBtn = document.getElementById('startBtn');
+    function updateTime() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const date = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
 
-  // Hide splash after 3 seconds, show main content
-  setTimeout(() => {
-    splash.style.display = 'none';
-    main.style.display = 'flex';
-  }, 3000);
+      // Unique period number based on minute count of the day
+      const totalMinutes = now.getHours() * 60 + now.getMinutes();
+      const periodNumber = `${year}${month}${date}100050${282 + totalMinutes}`;
+      periodDisplay.innerText = `Period: ${periodNumber}`;
 
-  let timerInterval;
-  let countdownInterval;
-
-  function pad(num) {
-    return num < 10 ? '0' + num : num;
-  }
-
-  function getPeriodNumber() {
-    const now = new Date();
-    const y = now.getFullYear();
-    const m = pad(now.getMonth() + 1);
-    const d = pad(now.getDate());
-    const hour = now.getHours();
-    const min = now.getMinutes();
-    const minutesSinceMidnight = hour * 60 + min;
-    const base = `${y}${m}${d}100050000`;
-    const periodNum = parseInt(base) + minutesSinceMidnight + 282;
-    return periodNum;
-  }
-
-  function updateRealTime() {
-    const now = new Date();
-    const h = pad(now.getHours());
-    const m = pad(now.getMinutes());
-    const s = pad(now.getSeconds());
-    document.getElementById('realTimeDisplay').textContent = `🕒 Current Time: ${h}:${m}:${s}`;
-  }
-
-  function updateCountdown() {
-    const now = new Date();
-    const seconds = now.getSeconds();
-    const remaining = 60 - seconds;
-    document.getElementById('countdownText').textContent = `⏳ Next update in: ${remaining}s`;
-  }
-
-  function updatePrediction() {
-    const period = getPeriodNumber();
-    const number = Math.floor(Math.random() * 10);
-    document.getElementById('periodDisplay').textContent = `Period: ${period}`;
-    document.getElementById('predictedNumber').textContent = number;
-    document.getElementById('betText').textContent = "BET FULL MONEY 💰";
-  }
-
-  function startGame() {
-    startBtn.style.display = 'none';
-    updateRealTime();
-    updateCountdown();
-    updatePrediction();
-
-    timerInterval = setInterval(() => {
-      updateRealTime();
-      updateCountdown();
-    }, 1000);
-
-    const now = new Date();
-    const delay = (60 - now.getSeconds()) * 1000 + 50;
-
-    setTimeout(() => {
-      updatePrediction();
-      countdownInterval = setInterval(updatePrediction, 60000);
-    }, delay);
-  }
-
-  startBtn.addEventListener('click', startGame);
-</script>
-
+      // Countdown
+      const secondsLeft = 60 - now.getSeconds();
+      countdown.innerText = `Next Prediction in: ${secondsLeft}s`;
+    }
+  </script>
 </body>
 </html>
