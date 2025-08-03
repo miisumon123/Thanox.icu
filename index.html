@@ -5,10 +5,7 @@
   <title>BDG Game Predictor</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
   <style>
-    /* Reset */
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body, html {
       margin: 0; padding: 0; height: 100%;
@@ -19,30 +16,30 @@
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
-      -webkit-text-size-adjust: 100%;
-      -ms-text-size-adjust: 100%;
     }
 
-    #start-screen, #predictor-section {
+    #login-screen, #start-screen, #predictor-section {
       width: 100%;
       max-width: 400px;
       margin: 0 auto;
       padding: 15px;
       text-align: center;
       position: relative;
-      top: 20vh;
+      top: 15vh;
     }
 
-    #start-screen h1 {
-      font-size: 36px;
-      font-weight: 700;
-      margin-bottom: 40px;
-      color: #00c1b3;
+    input[type="text"] {
+      padding: 12px;
+      width: 80%;
+      font-size: 18px;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      border: none;
     }
 
-    #start-screen button {
+    button {
       padding: 15px 35px;
-      font-size: 22px;
+      font-size: 18px;
       font-weight: 700;
       color: #000;
       background-color: #00c1b3;
@@ -51,7 +48,8 @@
       cursor: pointer;
       transition: background-color 0.3s ease;
     }
-    #start-screen button:hover {
+
+    button:hover {
       background-color: #018b83;
     }
 
@@ -60,7 +58,6 @@
       background: rgba(0,0,0,0.65);
       border-radius: 15px;
       padding: 25px 20px;
-      top: 10vh;
       box-shadow: 0 0 15px rgba(0,193,179,0.6);
     }
 
@@ -74,12 +71,7 @@
       user-select: none;
     }
 
-    #clock {
-      font-weight: 700;
-      font-size: 26px;
-      color: #00c1b3;
-      background: rgba(0,0,0,0.75);
-    }
+    #clock { font-weight: 700; font-size: 26px; color: #00c1b3; background: rgba(0,0,0,0.75); }
 
     #boom {
       display: none;
@@ -105,26 +97,44 @@
       overflow: hidden;
       padding: 10px 0;
       user-select: none;
-      letter-spacing: 1.2px;
     }
+
     .marquee p {
       display: inline-block;
       animation: scrollText 12s linear infinite;
       padding-left: 100%;
     }
+
     @keyframes scrollText {
       0% { transform: translateX(0); }
       100% { transform: translateX(-100%); }
+    }
+
+    #error-msg {
+      color: red;
+      margin-top: 10px;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
 
-  <div id="start-screen">
+  <!-- KEY INPUT -->
+  <div id="login-screen">
+    <h1>Enter Access Key</h1>
+    <input type="text" id="keyInput" placeholder="Enter your access key" />
+    <br>
+    <button onclick="verifyKey()">Verify Key</button>
+    <div id="error-msg"></div>
+  </div>
+
+  <!-- ORIGINAL START SCREEN -->
+  <div id="start-screen" style="display:none;">
     <h1>ThanosXnewb</h1>
     <button onclick="startApp()">WIN GO 1 MIN</button>
   </div>
 
+  <!-- PREDICTOR -->
   <div id="predictor-section">
     <div id="clock">🕒 Current Time: --:--:--</div>
     <div id="period">📟 Period: Loading...</div>
@@ -134,10 +144,29 @@
     <div id="boom">💥 WIN BOOM 💥</div>
   </div>
 
+  <!-- MARQUEE -->
   <div class="marquee"><p>Play Safe 1 Day 3 time</p></div>
 
+  <!-- JS -->
   <script>
     const bgUrl = "https://raw.githubusercontent.com/miisumon123/Thanox.icu/main/Bg.jpg";
+
+    function verifyKey() {
+      const key = document.getElementById("keyInput").value.trim();
+      fetch(`https://newb.free.nf/X/verify.php?key=${key}`)
+        .then(res => res.text())
+        .then(result => {
+          if (result.trim() === "valid") {
+            document.getElementById("login-screen").style.display = "none";
+            document.getElementById("start-screen").style.display = "block";
+          } else {
+            document.getElementById("error-msg").innerText = "❌ Invalid or expired key!";
+          }
+        })
+        .catch(() => {
+          document.getElementById("error-msg").innerText = "⚠️ Network error.";
+        });
+    }
 
     function startApp() {
       document.body.style.backgroundImage = `url(${bgUrl})`;
@@ -158,29 +187,23 @@
 
       document.getElementById("clock").textContent = `🕒 Current Time: ${h}:${m}:${s}`;
 
-      // Calculate period number
       const basePeriod = 100050282;
       const startDate = new Date("2025-07-31T10:00:00");
       const diffMins = Math.floor((now - startDate) / 60000);
       const period = `20250801100011195${basePeriod + diffMins}`;
       document.getElementById("period").textContent = `📟 Period: ${period}`;
 
-      // Predict number (stable per minute)
       const predictionNum = (now.getHours() + now.getMinutes()) % 10;
       document.getElementById("number").textContent = `🎯 Predicted Number: ${predictionNum}`;
-
       document.getElementById("message").textContent = `💸 BET FULL MONEY 💸`;
 
       const countdown = 60 - now.getSeconds();
       document.getElementById("countdown").textContent = `⏳ Next Prediction In: ${countdown}s`;
 
-      // Show WIN BOOM briefly at the turn of the minute
       const boom = document.getElementById("boom");
       if (s === "00") {
         boom.style.display = "block";
-        setTimeout(() => {
-          boom.style.display = "none";
-        }, 1500);
+        setTimeout(() => boom.style.display = "none", 1500);
       }
     }
   </script>
