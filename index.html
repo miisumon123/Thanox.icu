@@ -1,120 +1,232 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Predictor Access</title>
+  <meta charset="UTF-8" />
+  <title>BDG Game Predictor with Key Access</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
   <style>
-    body {
+    * { box-sizing: border-box; }
+    body, html {
+      margin: 0; padding: 0; height: 100%;
       font-family: Arial, sans-serif;
-      background: #111;
-      color: #eee;
-      text-align: center;
-      padding-top: 100px;
+      background-color: #000;
+      color: #fff;
+      overflow: hidden;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+    #login-screen, #predictor-section {
+      width: 100%; max-width: 400px;
+      margin: 0 auto; padding: 15px;
+      text-align: center; position: relative; top: 20vh;
+    }
+    #login-screen input[type="text"] {
+      padding: 12px; width: 80%; font-size: 18px;
+      margin-bottom: 10px; border-radius: 10px; border: none;
+    }
+    button {
+      padding: 15px 35px;
+      font-size: 22px; font-weight: 700;
+      color: #000; background-color: #00c1b3;
+      border: none; border-radius: 12px;
+      cursor: pointer; transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #018b83;
     }
     #predictor-section {
       display: none;
-      margin-top: 30px;
+      background: rgba(0,0,0,0.65);
+      border-radius: 15px;
+      padding: 25px 20px;
+      box-shadow: 0 0 15px rgba(0,193,179,0.6);
     }
-    #key-expiry-countdown {
+    #predictor-section > div {
+      margin: 15px 0;
+      font-weight: 600;
+      border-radius: 10px;
+      padding: 8px 12px;
+      background: rgba(0,0,0,0.5);
+      font-size: 24px;
+      user-select: none;
+    }
+    #clock {
+      font-weight: 700;
+      font-size: 26px;
+      color: #00c1b3;
+      background: rgba(0,0,0,0.75);
+    }
+    #key-expiry {
+      font-weight: 700;
       font-size: 20px;
-      margin-top: 15px;
-      color: #0f0;
+      color: #ffd700;
+      background: rgba(0,0,0,0.7);
+      padding: 8px;
+      border-radius: 10px;
+      margin-top: 10px;
+      user-select: none;
     }
-    input[type="text"] {
-      padding: 10px;
-      font-size: 16px;
-      border-radius: 6px;
-      border: none;
-      margin-right: 10px;
+    #boom {
+      display: none;
+      margin-top: 25px;
+      font-size: 40px;
+      font-weight: 900;
+      color: #ffd700;
+      background: rgba(0,0,0,0.7);
+      padding: 20px 0;
+      border-radius: 15px;
+      user-select: none;
     }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      border-radius: 6px;
-      background-color: #28a745;
-      color: white;
-      border: none;
-      cursor: pointer;
+    .marquee {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: rgba(0,0,0,0.7);
+      color: #00c1b3;
+      font-weight: 600;
+      font-size: 18px;
+      white-space: nowrap;
+      overflow: hidden;
+      padding: 10px 0;
+      user-select: none;
+      letter-spacing: 1.2px;
     }
-    button:hover {
-      background-color: #218838;
+    .marquee p {
+      display: inline-block;
+      animation: scrollText 12s linear infinite;
+      padding-left: 100%;
+    }
+    @keyframes scrollText {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
+    }
+    #error-msg {
+      color: #ff5050;
+      margin-top: 10px;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
 
-  <div id="start-screen">
-    <h2>🔐 Enter Access Key</h2>
-    <input type="text" id="key-input" placeholder="Enter your key...">
-    <button onclick="checkKey()">Submit</button>
-    <p id="key-error" style="color:red;"></p>
+  <!-- Login Screen -->
+  <div id="login-screen">
+    <h1>Enter Access Key</h1>
+    <input type="text" id="keyInput" placeholder="Enter your access key" />
+    <br />
+    <button onclick="verifyKey()">Verify Key</button>
+    <div id="error-msg"></div>
   </div>
 
+  <!-- Predictor Section -->
   <div id="predictor-section">
-    <h2>✅ Access Granted</h2>
-    <div id="key-expiry-countdown"></div>
-    <p>🎯 Welcome to the Predictor Page!</p>
-    <!-- Your predictor content goes here -->
+    <div id="clock">🕒 Current Time: --:--:--</div>
+    <div id="period">📟 Period: Loading...</div>
+    <div id="countdown">⏳ Next Prediction In: --s</div>
+    <div id="number">🎯 Predicted Number: --</div>
+    <div id="message">💸 BET FULL MONEY 💸</div>
+    <div id="key-expiry">⌛ Key expires in: --:--</div>
+    <div id="boom">💥 WIN BOOM 💥</div>
   </div>
 
-  <script>
-    const keyURL = "https://raw.githubusercontent.com/miisumon123/Thanox.icu/main/keys.json";
+  <div class="marquee"><p>Play Safe 1 Day 3 time</p></div>
 
-    async function checkKey() {
-      const key = document.getElementById("key-input").value.trim();
-      const errorEl = document.getElementById("key-error");
+<script>
+  const bgUrl = "https://raw.githubusercontent.com/miisumon123/Thanox.icu/main/Bg.jpg";
+  const keysJsonUrl = "https://raw.githubusercontent.com/miisumon123/Thanox.icu/main/keys.json";
 
-      try {
-        const res = await fetch(keyURL);
-        const data = await res.json();
+  let keyExpiryTimestamp = 0;
+  let countdownInterval = null;
 
-        if (!data[key]) {
-          errorEl.innerText = "❌ Invalid key!";
-          return;
-        }
-
-        const expiry = data[key].expiry;
-        const now = Date.now();
-
-        if (now > expiry) {
-          errorEl.innerText = "⛔ Key expired!";
-          return;
-        }
-
-        // Success
-        document.getElementById("start-screen").style.display = "none";
-        document.getElementById("predictor-section").style.display = "block";
-        startExpiryCountdown(expiry);
-      } catch (err) {
-        errorEl.innerText = "⚠️ Network or load error!";
-        console.error(err);
-      }
+  async function verifyKey() {
+    const key = document.getElementById("keyInput").value.trim();
+    const errorDiv = document.getElementById("error-msg");
+    errorDiv.textContent = "";
+    if (!key) {
+      errorDiv.textContent = "Please enter a key!";
+      return;
     }
+    try {
+      const res = await fetch(keysJsonUrl);
+      if (!res.ok) throw new Error("Failed to load keys");
+      const keys = await res.json();
 
-    function startExpiryCountdown(expiryTime) {
-      const el = document.getElementById("key-expiry-countdown");
-
-      function update() {
-        const now = Date.now();
-        const distance = expiryTime - now;
-
-        if (distance <= 0) {
-          el.innerText = "⛔ Key expired!";
-          document.getElementById("predictor-section").style.display = "none";
-          document.getElementById("start-screen").style.display = "block";
-          return;
-        }
-
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-        el.innerText = `⏳ Time left: ${minutes} min ${seconds < 10 ? "0" : ""}${seconds} sec`;
+      if (!keys[key]) {
+        errorDiv.textContent = "❌ Invalid key!";
+        return;
+      }
+      const now = Date.now();
+      if (now > keys[key].expiry) {
+        errorDiv.textContent = "⏰ Key expired!";
+        return;
       }
 
-      update();
-      setInterval(update, 1000);
+      // Valid key — save expiry timestamp and show predictor
+      keyExpiryTimestamp = keys[key].expiry;
+      document.getElementById("login-screen").style.display = "none";
+      document.body.style.backgroundImage = `url(${bgUrl})`;
+      document.getElementById("predictor-section").style.display = "block";
+
+      startPredictor();
+    } catch (e) {
+      errorDiv.textContent = "⚠️ Network or load error.";
+      console.error(e);
     }
-  </script>
+  }
+
+  function startPredictor() {
+    updateAll();
+    countdownInterval = setInterval(updateAll, 1000);
+  }
+
+  function updateAll() {
+    const now = new Date();
+
+    const h = now.getHours().toString().padStart(2, '0');
+    const m = now.getMinutes().toString().padStart(2, '0');
+    const s = now.getSeconds().toString().padStart(2, '0');
+
+    document.getElementById("clock").textContent = `🕒 Current Time: ${h}:${m}:${s}`;
+
+    const basePeriod = 100050282;
+    const startDate = new Date("2025-07-31T10:00:00");
+    const diffMins = Math.floor((now - startDate) / 60000);
+    const period = `20250801100011195${basePeriod + diffMins}`;
+    document.getElementById("period").textContent = `📟 Period: ${period}`;
+
+    const predictionNum = (now.getHours() + now.getMinutes()) % 10;
+    document.getElementById("number").textContent = `🎯 Predicted Number: ${predictionNum}`;
+
+    document.getElementById("message").textContent = `💸 BET FULL MONEY 💸`;
+
+    const countdown = 60 - now.getSeconds();
+    document.getElementById("countdown").textContent = `⏳ Next Prediction In: ${countdown}s`;
+
+    // Update key expiry countdown
+    const msLeft = keyExpiryTimestamp - Date.now();
+    if (msLeft > 0) {
+      const minsLeft = Math.floor(msLeft / 60000);
+      const secsLeft = Math.floor((msLeft % 60000) / 1000);
+      document.getElementById("key-expiry").textContent = `⌛ Key expires in: ${minsLeft.toString().padStart(2,'0')}:${secsLeft.toString().padStart(2,'0')}`;
+    } else {
+      // Key expired during session — logout user
+      alert("Your key has expired. Please reload the page and enter a valid key.");
+      clearInterval(countdownInterval);
+      document.getElementById("predictor-section").style.display = "none";
+      document.getElementById("login-screen").style.display = "block";
+      document.getElementById("keyInput").value = "";
+    }
+
+    const boom = document.getElementById("boom");
+    if (s === "00") {
+      boom.style.display = "block";
+      setTimeout(() => {
+        boom.style.display = "none";
+      }, 1500);
+    }
+  }
+</script>
 
 </body>
 </html>
