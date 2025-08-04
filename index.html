@@ -2,11 +2,11 @@
 <html>
 <head>
   <meta charset="UTF-8" />
-  <title>BDG Game Predictor</title>
+  <title>BDG Game Predictor with Key Access</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
   <style>
+    /* Reset */
     * { box-sizing: border-box; }
-
     body, html {
       margin: 0; padding: 0; height: 100%;
       font-family: Arial, sans-serif;
@@ -17,42 +17,25 @@
       background-position: center;
       background-repeat: no-repeat;
     }
-
     #login-screen, #start-screen, #predictor-section {
-      width: 100%;
-      max-width: 400px;
-      margin: 0 auto;
-      padding: 15px;
-      text-align: center;
-      position: relative;
-      top: 15vh;
+      width: 100%; max-width: 400px;
+      margin: 0 auto; padding: 15px;
+      text-align: center; position: relative; top: 20vh;
     }
-
-    input[type="text"] {
-      padding: 12px;
-      width: 80%;
-      font-size: 18px;
-      margin-bottom: 10px;
-      border-radius: 10px;
-      border: none;
+    #login-screen input[type="text"] {
+      padding: 12px; width: 80%; font-size: 18px;
+      margin-bottom: 10px; border-radius: 10px; border: none;
     }
-
     button {
       padding: 15px 35px;
-      font-size: 18px;
-      font-weight: 700;
-      color: #000;
-      background-color: #00c1b3;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
+      font-size: 22px; font-weight: 700;
+      color: #000; background-color: #00c1b3;
+      border: none; border-radius: 12px;
+      cursor: pointer; transition: background-color 0.3s ease;
     }
-
     button:hover {
       background-color: #018b83;
     }
-
     #predictor-section {
       display: none;
       background: rgba(0,0,0,0.65);
@@ -60,7 +43,6 @@
       padding: 25px 20px;
       box-shadow: 0 0 15px rgba(0,193,179,0.6);
     }
-
     #predictor-section > div {
       margin: 15px 0;
       font-weight: 600;
@@ -70,9 +52,12 @@
       font-size: 24px;
       user-select: none;
     }
-
-    #clock { font-weight: 700; font-size: 26px; color: #00c1b3; background: rgba(0,0,0,0.75); }
-
+    #clock {
+      font-weight: 700;
+      font-size: 26px;
+      color: #00c1b3;
+      background: rgba(0,0,0,0.75);
+    }
     #boom {
       display: none;
       margin-top: 25px;
@@ -84,7 +69,6 @@
       border-radius: 15px;
       user-select: none;
     }
-
     .marquee {
       position: fixed;
       bottom: 0;
@@ -97,21 +81,19 @@
       overflow: hidden;
       padding: 10px 0;
       user-select: none;
+      letter-spacing: 1.2px;
     }
-
     .marquee p {
       display: inline-block;
       animation: scrollText 12s linear infinite;
       padding-left: 100%;
     }
-
     @keyframes scrollText {
       0% { transform: translateX(0); }
       100% { transform: translateX(-100%); }
     }
-
     #error-msg {
-      color: red;
+      color: #ff5050;
       margin-top: 10px;
       font-weight: bold;
     }
@@ -119,22 +101,22 @@
 </head>
 <body>
 
-  <!-- KEY INPUT -->
+  <!-- Key Input Screen -->
   <div id="login-screen">
     <h1>Enter Access Key</h1>
     <input type="text" id="keyInput" placeholder="Enter your access key" />
-    <br>
+    <br />
     <button onclick="verifyKey()">Verify Key</button>
     <div id="error-msg"></div>
   </div>
 
-  <!-- ORIGINAL START SCREEN -->
+  <!-- Start Screen -->
   <div id="start-screen" style="display:none;">
     <h1>ThanosXnewb</h1>
     <button onclick="startApp()">WIN GO 1 MIN</button>
   </div>
 
-  <!-- PREDICTOR -->
+  <!-- Predictor Section -->
   <div id="predictor-section">
     <div id="clock">🕒 Current Time: --:--:--</div>
     <div id="period">📟 Period: Loading...</div>
@@ -144,28 +126,43 @@
     <div id="boom">💥 WIN BOOM 💥</div>
   </div>
 
-  <!-- MARQUEE -->
+  <!-- Marquee -->
   <div class="marquee"><p>Play Safe 1 Day 3 time</p></div>
 
-  <!-- JS -->
   <script>
     const bgUrl = "https://raw.githubusercontent.com/miisumon123/Thanox.icu/main/Bg.jpg";
+    const keysJsonUrl = "https://raw.githubusercontent.com/YourUserName/YourRepo/main/keys.json"; // Change this to your actual GitHub keys.json URL
 
-    function verifyKey() {
+    async function verifyKey() {
       const key = document.getElementById("keyInput").value.trim();
-      fetch(`https://newb.free.nf/X/verify.php?key=${key}`)
-        .then(res => res.text())
-        .then(result => {
-          if (result.trim() === "valid") {
-            document.getElementById("login-screen").style.display = "none";
-            document.getElementById("start-screen").style.display = "block";
-          } else {
-            document.getElementById("error-msg").innerText = "❌ Invalid or expired key!";
-          }
-        })
-        .catch(() => {
-          document.getElementById("error-msg").innerText = "⚠️ Network error.";
-        });
+      const errorDiv = document.getElementById("error-msg");
+      errorDiv.textContent = "";
+      if (!key) {
+        errorDiv.textContent = "Please enter a key!";
+        return;
+      }
+      try {
+        const res = await fetch(keysJsonUrl);
+        if (!res.ok) throw new Error("Failed to load keys");
+        const keys = await res.json();
+
+        if (!keys[key]) {
+          errorDiv.textContent = "❌ Invalid key!";
+          return;
+        }
+        const now = Date.now();
+        if (now > keys[key].expiry) {
+          errorDiv.textContent = "⏰ Key expired!";
+          return;
+        }
+
+        // Valid key — show start screen
+        document.getElementById("login-screen").style.display = "none";
+        document.getElementById("start-screen").style.display = "block";
+      } catch (e) {
+        errorDiv.textContent = "⚠️ Network or load error.";
+        console.error(e);
+      }
     }
 
     function startApp() {
@@ -195,6 +192,7 @@
 
       const predictionNum = (now.getHours() + now.getMinutes()) % 10;
       document.getElementById("number").textContent = `🎯 Predicted Number: ${predictionNum}`;
+
       document.getElementById("message").textContent = `💸 BET FULL MONEY 💸`;
 
       const countdown = 60 - now.getSeconds();
