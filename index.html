@@ -1,193 +1,120 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8" />
-  <title>BDG Game Predictor Access</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+  <meta charset="UTF-8">
+  <title>Predictor Access</title>
   <style>
-    body, html {
-      margin: 0; padding: 0; height: 100%;
+    body {
       font-family: Arial, sans-serif;
-      background-color: #000;
-      color: #0ff;
+      background: #111;
+      color: #eee;
       text-align: center;
-      padding: 30px;
+      padding-top: 100px;
     }
-    input {
-      padding: 12px;
-      font-size: 18px;
-      width: 220px;
-      border-radius: 5px;
+    #predictor-section {
+      display: none;
+      margin-top: 30px;
+    }
+    #key-expiry-countdown {
+      font-size: 20px;
+      margin-top: 15px;
+      color: #0f0;
+    }
+    input[type="text"] {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 6px;
       border: none;
-      text-transform: uppercase;
+      margin-right: 10px;
     }
     button {
-      padding: 12px 25px;
-      font-size: 18px;
-      margin-left: 10px;
-      cursor: pointer;
-      border-radius: 5px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 6px;
+      background-color: #28a745;
+      color: white;
       border: none;
-      background-color: #00c1b3;
-      color: #000;
-      font-weight: bold;
-      transition: background-color 0.3s ease;
+      cursor: pointer;
     }
     button:hover {
-      background-color: #018b83;
-      color: #fff;
-    }
-    #error {
-      color: #ff5555;
-      font-weight: bold;
-      margin-top: 15px;
-    }
-    #success {
-      color: #55ff55;
-      font-weight: bold;
-      margin-top: 15px;
-    }
-    #predictor {
-      margin-top: 40px;
-      display: none;
-      background: rgba(0,193,179,0.15);
-      padding: 20px;
-      border-radius: 12px;
-      color: #00c1b3;
-      font-weight: 600;
-    }
-    #clock {
-      font-size: 26px;
-      font-weight: 700;
-      margin-bottom: 15px;
-    }
-    #period, #countdown, #number, #message {
-      margin: 10px 0;
-      font-size: 22px;
-      user-select: none;
-    }
-    #boom {
-      display: none;
-      margin-top: 25px;
-      font-size: 36px;
-      font-weight: 900;
-      color: #ffd700;
-      background: rgba(0,0,0,0.7);
-      padding: 15px 0;
-      border-radius: 15px;
-      user-select: none;
+      background-color: #218838;
     }
   </style>
 </head>
 <body>
 
-  <h1>Enter Access Key</h1>
-  <input id="keyInput" placeholder="Enter your key (e.g. NEWB10)" autofocus />
-  <button onclick="verifyKey()">Verify</button>
-
-  <div id="error"></div>
-  <div id="success"></div>
-
-  <div id="predictor">
-    <div id="clock">🕒 Current Time: --:--:--</div>
-    <div id="period">📟 Period: Loading...</div>
-    <div id="countdown">⏳ Next Prediction In: --s</div>
-    <div id="number">🎯 Predicted Number: --</div>
-    <div id="message">💸 BET FULL MONEY 💸</div>
-    <div id="boom">💥 WIN BOOM 💥</div>
+  <div id="start-screen">
+    <h2>🔐 Enter Access Key</h2>
+    <input type="text" id="key-input" placeholder="Enter your key...">
+    <button onclick="checkKey()">Submit</button>
+    <p id="key-error" style="color:red;"></p>
   </div>
 
-<script>
-  const bgUrl = "https://raw.githubusercontent.com/miisumon123/Thanox.icu/main/Bg.jpg";
+  <div id="predictor-section">
+    <h2>✅ Access Granted</h2>
+    <div id="key-expiry-countdown"></div>
+    <p>🎯 Welcome to the Predictor Page!</p>
+    <!-- Your predictor content goes here -->
+  </div>
 
-  async function verifyKey() {
-    const key = document.getElementById('keyInput').value.trim().toUpperCase();
-    document.getElementById('error').textContent = '';
-    document.getElementById('success').textContent = '';
-    document.getElementById('predictor').style.display = 'none';
+  <script>
+    const keyURL = "https://raw.githubusercontent.com/miisumon123/Thanox.icu/main/keys.json";
 
-    if (!key) {
-      document.getElementById('error').textContent = 'Please enter a key.';
-      return;
+    async function checkKey() {
+      const key = document.getElementById("key-input").value.trim();
+      const errorEl = document.getElementById("key-error");
+
+      try {
+        const res = await fetch(keyURL);
+        const data = await res.json();
+
+        if (!data[key]) {
+          errorEl.innerText = "❌ Invalid key!";
+          return;
+        }
+
+        const expiry = data[key].expiry;
+        const now = Date.now();
+
+        if (now > expiry) {
+          errorEl.innerText = "⛔ Key expired!";
+          return;
+        }
+
+        // Success
+        document.getElementById("start-screen").style.display = "none";
+        document.getElementById("predictor-section").style.display = "block";
+        startExpiryCountdown(expiry);
+      } catch (err) {
+        errorEl.innerText = "⚠️ Network or load error!";
+        console.error(err);
+      }
     }
 
-    try {
-      const response = await fetch('https://raw.githubusercontent.com/miisumon123/Thanox.icu/main/keys.json');
-      if (!response.ok) throw new Error('Failed to load keys file.');
+    function startExpiryCountdown(expiryTime) {
+      const el = document.getElementById("key-expiry-countdown");
 
-      const keys = await response.json();
+      function update() {
+        const now = Date.now();
+        const distance = expiryTime - now;
 
-      if (!(key in keys)) {
-        document.getElementById('error').textContent = 'Invalid key.';
-        return;
+        if (distance <= 0) {
+          el.innerText = "⛔ Key expired!";
+          document.getElementById("predictor-section").style.display = "none";
+          document.getElementById("start-screen").style.display = "block";
+          return;
+        }
+
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        el.innerText = `⏳ Time left: ${minutes} min ${seconds < 10 ? "0" : ""}${seconds} sec`;
       }
 
-      const expiry = keys[key].expiry;
-      const used = keys[key].used;
-      const now = Date.now();
-
-      if (now > expiry) {
-        document.getElementById('error').textContent = 'Key expired.';
-        return;
-      }
-
-      if (used) {
-        document.getElementById('error').textContent = 'Key already used.';
-        return;
-      }
-
-      document.getElementById('success').textContent = 'Key valid! Access granted.';
-      document.body.style.backgroundImage = `url(${bgUrl})`;
-      document.getElementById('predictor').style.display = 'block';
-
-      startPredictor();
-
-    } catch (e) {
-      console.error(e);
-      document.getElementById('error').textContent = 'Network or load error.';
+      update();
+      setInterval(update, 1000);
     }
-  }
-
-  function startPredictor() {
-    updateAll();
-    setInterval(updateAll, 1000);
-  }
-
-  function updateAll() {
-    const now = new Date();
-
-    const h = now.getHours().toString().padStart(2, '0');
-    const m = now.getMinutes().toString().padStart(2, '0');
-    const s = now.getSeconds().toString().padStart(2, '0');
-
-    document.getElementById("clock").textContent = `🕒 Current Time: ${h}:${m}:${s}`;
-
-    // Calculate period number
-    const basePeriod = 100050282;
-    const startDate = new Date("2025-07-31T10:00:00");
-    const diffMins = Math.floor((now - startDate) / 60000);
-    const period = `20250801100011195${basePeriod + diffMins}`;
-    document.getElementById("period").textContent = `📟 Period: ${period}`;
-
-    // Predict number (stable per minute)
-    const predictionNum = (now.getHours() + now.getMinutes()) % 10;
-    document.getElementById("number").textContent = `🎯 Predicted Number: ${predictionNum}`;
-
-    document.getElementById("message").textContent = `💸 BET FULL MONEY 💸`;
-
-    const countdown = 60 - now.getSeconds();
-    document.getElementById("countdown").textContent = `⏳ Next Prediction In: ${countdown}s`;
-
-    // Show WIN BOOM briefly at the turn of the minute
-    const boom = document.getElementById("boom");
-    if (s === "00") {
-      boom.style.display = "block";
-      setTimeout(() => {
-        boom.style.display = "none";
-      }, 1500);
-    }
-  }
-</script>
+  </script>
 
 </body>
 </html>
